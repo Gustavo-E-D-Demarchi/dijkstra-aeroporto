@@ -1,109 +1,479 @@
 program pzim;
-type
-    TVetorInt = array[1..24] of integer;
-    TVetorNomes = array[1..24] of integer
-    TMatriz = array[1..24] of integer;
 
-//como a funcao tem que carregar primeiro vou colocar aqui msm
-function definirMaior(s : string) : string
+type
+    aInt = array[1..24] of integer;
+    aString = array[1..24] of string;
+    aBool = array[1..24] of boolean;
+    aMatriz = array[1..24, 1..24] of integer;
+
+function Maior(texto: string): string;
 var
-    i : integer;
+    i: integer;
 begin
-    for i := 1 to length(s) do
-    begin
-        s[i] := upcase(s[i]);
-    end;
-    ParaMaiusculas := s;
+    for i := 1 to length(texto) do
+        if (texto[i] >= 'a') and (texto[i] <= 'z') then
+            texto[i] := chr(ord(texto[i]) - 32);
+
+    Maior := texto;
 end;
 
-function SemEspacos(s : string) : string
+
+function encontrarAeoro(
+    aeoro: aString;
+    codigo: string
+): integer;
 var
-    i : integer ;
-    resl : string;
+    i: integer;
 begin
-    for i := 1 to length(s) do
-    begin
-        if (s <> ' ') then
+    encontrarAeoro := 0;
+    codigo := Maior(codigo);
+
+    for i := 1 to 24 do
+        if aeoro[i] = codigo then
+            encontrarAeoro := i;
+end;
+
+
+function encontrarMenorDistancia( Distancia: aInt ; Visitado: aBool): integer;
+var
+    i : integer;
+    menor : integer ;
+    posicao : integer ;
+begin
+    menor := 99999999999 ;
+    posicao := 0 ;
+
+    for i := 1 to 24 do
+        if( not Visitado[i]) and (Distancia[i] < menor) then
         begin
-            resl := resl + s[i]
+            menor := Distancia[i] ;
+            posicao := i ;
+        end;
+
+    encontrarMenorDistancia := posicao;
+
+end;
+
+
+procedure iniciaAeorporto(
+    var aeoro: aString
+);
+begin
+    aeoro[1] := 'SFS';
+    aeoro[2] := 'SCCR';
+    aeoro[3] := 'DC';
+    aeoro[4] := 'SCPI';
+    aeoro[5] := 'SMO';
+    aeoro[6] := 'SCIA';
+    aeoro[7] := 'CP';
+    aeoro[8] := 'SCFA';
+    aeoro[9] := 'SJ';
+    aeoro[10] := 'SCJG';
+    aeoro[11] := 'SCLS';
+    aeoro[12] := 'SCCO';
+    aeoro[13] := 'SCXE';
+    aeoro[14] := 'SCJA';
+    aeoro[15] := 'SCCS';
+    aeoro[16] := 'SCVA';
+    aeoro[17] := 'SCLON';
+    aeoro[18] := 'SCCA';
+    aeoro[19] := 'TB';
+    aeoro[20] := 'SCBU';
+    aeoro[21] := 'RN';
+    aeoro[22] := 'SCFS';
+    aeoro[23] := 'SCJE';
+    aeoro[24] := 'SCNS';
+end;
+
+
+procedure iniciaMatriz(
+    var matriz: aMatriz
+);
+var
+    i, j: integer;
+begin
+
+    { Zera toda a matriz }
+
+    for i := 1 to 24 do
+        for j := 1 to 24 do
+            matriz[i,j] := 0;
+
+
+    { SFS }
+
+    matriz[1,2] := 5;
+    matriz[2,1] := 5;
+
+    matriz[1,20] := 19;
+    matriz[20,1] := 19;
+
+    matriz[1,21] := 11;
+    matriz[21,1] := 11;
+
+    matriz[1,22] := 5;
+    matriz[22,1] := 5;
+
+
+    { SCCR }
+
+    matriz[2,3] := 10;
+    matriz[3,2] := 10;
+
+    matriz[2,6] := 14;
+    matriz[6,2] := 14;
+
+    matriz[2,20] := 9;
+    matriz[20,2] := 9;
+
+
+    { DC }
+
+    matriz[3,4] := 8;
+    matriz[4,3] := 8;
+
+    matriz[3,5] := 9;
+    matriz[5,3] := 9;
+
+
+    { SCPI }
+
+    matriz[4,5] := 12;
+    matriz[5,4] := 12;
+
+    matriz[4,6] := 15;
+    matriz[6,4] := 15;
+
+
+    { SCIA }
+
+    matriz[6,8] := 20;
+    matriz[8,6] := 20;
+
+    matriz[6,16] := 2;
+    matriz[16,6] := 2;
+
+
+    { CP }
+
+    matriz[7,8] := 6;
+    matriz[8,7] := 6;
+
+    matriz[7,9] := 9;
+    matriz[9,7] := 9;
+
+    matriz[7,10] := 11;
+    matriz[10,7] := 11;
+
+    matriz[7,11] := 3;
+    matriz[11,7] := 3;
+
+    matriz[7,12] := 5;
+    matriz[12,7] := 5;
+
+
+    { SCFA }
+
+    matriz[8,9] := 3;
+    matriz[9,8] := 3;
+
+    matriz[8,11] := 8;
+    matriz[11,8] := 8;
+
+    { Esta rota é direcionada }
+
+    matriz[8,10] := 5;
+    matriz[10,8] := 7;
+
+
+    { SJ }
+
+    matriz[9,10] := 13;
+    matriz[10,9] := 13;
+
+    matriz[9,11] := 7;
+    matriz[11,9] := 7;
+
+
+    { SCJG }
+
+    matriz[10,11] := 2;
+    matriz[11,10] := 2;
+
+    matriz[10,12] := 10;
+    matriz[12,10] := 10;
+
+    matriz[10,15] := 16;
+    matriz[15,10] := 16;
+
+
+    { SCLS }
+
+    matriz[11,12] := 17;
+    matriz[12,11] := 17;
+
+    matriz[11,14] := 4;
+    matriz[14,11] := 4;
+
+
+    { SCCO }
+
+    matriz[12,15] := 6;
+    matriz[15,12] := 6;
+
+    matriz[12,16] := 3;
+    matriz[16,12] := 3;
+
+
+    { SCXE }
+
+    matriz[13,16] := 12;
+    matriz[16,13] := 12;
+
+
+    { SCJA }
+
+    matriz[14,16] := 3;
+    matriz[16,14] := 3;
+
+
+    { SCCS }
+
+    matriz[15,16] := 1;
+    matriz[16,15] := 1;
+
+
+    { SCVA }
+
+    matriz[16,17] := 5;
+    matriz[17,16] := 5;
+
+    matriz[16,18] := 4;
+    matriz[18,16] := 4;
+
+    matriz[16,19] := 8;
+    matriz[19,16] := 8;
+
+    matriz[16,20] := 16;
+    matriz[20,16] := 16;
+
+    matriz[16,21] := 13;
+    matriz[21,16] := 13;
+
+
+    { SCBU }
+
+    matriz[20,21] := 6;
+    matriz[21,20] := 6;
+
+    matriz[20,22] := 7;
+    matriz[22,20] := 7;
+
+
+    { RN }
+
+    matriz[21,22] := 2;
+    matriz[22,21] := 2;
+
+
+    { SCFS }
+
+    matriz[22,23] := 3;
+    matriz[23,22] := 3;
+
+    matriz[22,24] := 10;
+    matriz[24,22] := 10;
+
+end;
+
+
+procedure iniciaDijkstra(
+    origem: integer;
+    var Distancia: aInt;
+    var Anterior: aInt;
+    var Visitado: aBool
+);
+var
+    i: integer;
+begin
+    for i := 1 to 24 do
+    begin
+        Distancia[i] := 9999999;
+        Anterior[i] := 0;
+        Visitado[i] := false;
+    end;
+
+    Distancia[origem] := 0;
+end;
+
+procedure Dijkstra(
+    Matriz: aMatriz;
+    var Distancia: aInt;
+    var Anterior: aInt;
+    var Visitado: aBool
+);
+var
+    atual: integer;
+    i, vizinho: integer;
+    novaDistancia: integer;
+begin
+
+    for i := 1 to 24 do
+    begin
+        atual := encontrarMenorDistancia(Distancia, Visitado);
+
+        Visitado[atual] := true;
+
+        for vizinho := 1 to 24 do
+        begin
+            if Matriz[atual,vizinho] > 0 then
+            begin
+                novaDistancia := Distancia[atual] + Matriz[atual,vizinho];
+
+                if novaDistancia < Distancia[vizinho] then
+                begin
+                    Distancia[vizinho] := novaDistancia;
+                    Anterior[vizinho] := atual;
+                end;
+            end;
         end;
     end;
-    SemEspacos := resl;
 end;
 
-function IndiceAeroporto(nome : string) : string;
+procedure MostrarCaminho(
+    Aeroportos: aString;
+    Anterior: aInt;
+    origem: integer;
+    destino: integer
+);
 var
-    i : integer;
-    codigo : string;
+    caminho: aInt;
+    quantidade: integer;
+    atual: integer;
+    i: integer;
 begin
-    codigo := ParaMaiusculas(SemEspacos(nome));
+    quantidade := 0;
+    atual := destino;
 
-    for i:= 1 to 24 do
+    while atual <> 0 do
     begin
-        if Aeroportos[i] = codigo
+        quantidade := quantidade + 1;
+        caminho[quantidade] := atual;
+
+        if atual = origem then
+            atual := 0
+        else
+            atual := Anterior[atual];
+    end;
+
+    for i := quantidade downto 1 do
+    begin
+        write(Aeroportos[caminho[i]]);
+
+        if i > 1 then
+            write(' -> ');
+    end;
+
+    writeln;
+end;
+
+procedure MostrarDistancias(
+    Aeroportos: aString;
+    Distancia: aInt
+);
+var
+    i: integer;
+begin
+    for i := 1 to 24 do
+    begin
+        writeln(Aeroportos[i], ' = ', Distancia[i]);
     end;
 end;
 
-function lerAeroValido(s : string) : string
-var 
-    entrada : string;
-    idx : integer;
-
+procedure Verificar(var O , D: integer ; Aero : aString);
+var
+    origem , destino: string ;
 begin
-    idx := -1 ;
-    while idx = -1 do
+    while O = 0 do
     begin
-        write(s , ' : ');
-        readln(entrada);
-        idx := IndiceAeroporto(entrada);
-    end; 
+        writeln('===================================');
+        writeln('Valor invalido !');
+        write('Digite novamente o valor do origem : ');
+        readln(origem);
+        writeln('===================================');
+        O := encontrarAeoro(Aero, origem);
+    end;
+    while D = 0 do
+    begin
+        writeln('===================================');
+        writeln('Valor invalido !');
+        write('Digite novamente o valor do destino : ');
+        readln(destino);
+        D := encontrarAeoro(Aero, destino);
+        writeln('===================================');
+    end;
 end;
 
-
-
-procedure IniciarAeroportos(var Aero : TVetorNomes);
+procedure MostrarResultado(
+    Aeroportos: aString;
+    Distancia: aInt;
+    Anterior: aInt;
+    origem: integer;
+    destino: integer
+);
 begin
-	Aero[1] := 'SFS';
-	Aero[2] := 'SCCR';
-	Aero[3] := 'DC';
-	Aero[4] := 'SCPI';
-	Aero[5] := 'SMO';
-	Aero[6] := 'SCIA';
-	Aero[7] := 'CP';
-	Aero[8] := 'SCFA';
-	Aero[9] := 'SJ';
-	Aero[10] := 'SCJG';
-	Aero[11] := 'SCLS';
-	Aero[12] := 'SCCO';
-	Aero[13] := 'SCXE';
-	Aero[14] := 'SCJA';
-	Aero[15] := 'SCCS';
-	Aero[16] := 'SCVA';
-	Aero[17] := 'SCLON';
-	Aero[18] := 'SCCA';
-	Aero[19] := 'TB';
-	Aero[20] := 'SCBU';
-	Aero[21] := 'RN';
-	Aero[22] := 'SCFS';
-	Aero[23] := 'SCJE';
-	Aero[24] := 'SCNS';
+    writeln('===================================');
+    writeln('            RESULTADO');
+    writeln('===================================');
+
+    writeln('Origem: ', Aeroportos[origem]);
+    writeln('Destino: ', Aeroportos[destino]);
+
+    writeln;
+    writeln('Caminho:');
+    MostrarCaminho(Aeroportos, Anterior, origem, destino);
+
+    writeln;
+    writeln('Distancia total: ', Distancia[destino]);
+
+    writeln('===================================');
 end;
 
-procedure DefinirAresta()
+var
+    Distancia: aInt;
+    Anterior: aInt;
+    Aeroportos: aString;
+    Visitado: aBool;
+    Matriz: aMatriz;
+
+    codigoOrigem: string;
+    codigoDestino: string;
+    op : string;
+    origem : integer;
+    destino : integer;
 begin
-    
-end;
+    iniciaAeorporto(Aeroportos);
+    iniciaMatriz(Matriz);
+    op :='s';
+    while (op = 'S')or(op = 's')  do
+    begin
+        write('Digite o aeroporto de origem: ');
+        readln(codigoOrigem);
+        write('Digite o aeroporto do destino: ');
+        readln(codigoDestino);
+        
+        origem := encontrarAeoro(Aeroportos, codigoOrigem);
+        destino := encontrarAeoro(Aeroportos, codigoDestino);
+        
+        Verificar(origem , destino , Aeroportos);
 
-procedure IniciarAeroportos()
-var 
-    aero : TVetorNomes;
+        iniciaDijkstra(origem,Distancia,Anterior,Visitado);
 
-    origemIdx : integer ;
-    destinoIdx : integer;
+        Dijkstra(Matriz,Distancia,Anterior,Visitado);
 
-begin
-    IniciarAeroportos(aero);
-    
-    origemIdx := lerAeroValido('Origem');
-    destinoIdx := lerAeroValido('Destino');
+        MostrarResultado(Aeroportos,Distancia,Anterior,origem,destino);
+
+        write('Deseja fazer outra consulta? (S/N): ');
+        readln(op);
+    end;
 end.

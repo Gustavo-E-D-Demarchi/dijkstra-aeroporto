@@ -6,13 +6,18 @@ type
     aBool = array[1..24] of boolean;
     aMatriz = array[1..24, 1..24] of integer;
 
+
 function Maior(texto: string): string;
 var
     i: integer;
 begin
     for i := 1 to length(texto) do
+    begin
         if (texto[i] >= 'a') and (texto[i] <= 'z') then
+        begin
             texto[i] := chr(ord(texto[i]) - 32);
+        end;
+    end;
 
     Maior := texto;
 end;
@@ -26,32 +31,41 @@ var
     i: integer;
 begin
     encontrarAeoro := 0;
+
     codigo := Maior(codigo);
 
     for i := 1 to 24 do
+    begin
         if aeoro[i] = codigo then
+        begin
             encontrarAeoro := i;
+        end;
+    end;
 end;
 
 
-function encontrarMenorDistancia( Distancia: aInt ; Visitado: aBool): integer;
+function encontrarMenorDistancia(
+    Distancia: aInt;
+    Visitado: aBool
+): integer;
 var
-    i : integer;
-    menor : integer ;
-    posicao : integer ;
+    i: integer;
+    menor: integer;
+    posicao: integer;
 begin
-    menor := 99999999999 ;
-    posicao := 0 ;
+    menor := 9999999;
+    posicao := 0;
 
     for i := 1 to 24 do
-        if( not Visitado[i]) and (Distancia[i] < menor) then
+    begin
+        if (not Visitado[i]) and (Distancia[i] < menor) then
         begin
-            menor := Distancia[i] ;
-            posicao := i ;
+            menor := Distancia[i];
+            posicao := i;
         end;
+    end;
 
     encontrarMenorDistancia := posicao;
-
 end;
 
 
@@ -93,11 +107,13 @@ var
     i, j: integer;
 begin
 
-    { Zera toda a matriz }
-
     for i := 1 to 24 do
+    begin
         for j := 1 to 24 do
+        begin
             matriz[i,j] := 0;
+        end;
+    end;
 
 
     { SFS }
@@ -180,7 +196,7 @@ begin
     matriz[8,11] := 8;
     matriz[11,8] := 8;
 
-    { Esta rota é direcionada }
+    { Rota direcionada }
 
     matriz[8,10] := 5;
     matriz[10,8] := 7;
@@ -306,39 +322,73 @@ begin
     Distancia[origem] := 0;
 end;
 
+
 procedure Dijkstra(
     Matriz: aMatriz;
     var Distancia: aInt;
     var Anterior: aInt;
-    var Visitado: aBool
+    var Visitado: aBool;
+    var OrdemPesquisa: aInt
 );
 var
     atual: integer;
     i, vizinho: integer;
     novaDistancia: integer;
+    quantidade: integer;
 begin
+
+    quantidade := 0;
 
     for i := 1 to 24 do
     begin
         atual := encontrarMenorDistancia(Distancia, Visitado);
 
-        Visitado[atual] := true;
-
-        for vizinho := 1 to 24 do
+        if atual <> 0 then
         begin
-            if Matriz[atual,vizinho] > 0 then
-            begin
-                novaDistancia := Distancia[atual] + Matriz[atual,vizinho];
+            quantidade := quantidade + 1;
+            OrdemPesquisa[quantidade] := atual;
 
-                if novaDistancia < Distancia[vizinho] then
+            Visitado[atual] := true;
+
+            for vizinho := 1 to 24 do
+            begin
+                if Matriz[atual,vizinho] > 0 then
                 begin
-                    Distancia[vizinho] := novaDistancia;
-                    Anterior[vizinho] := atual;
+                    novaDistancia :=
+                        Distancia[atual] + Matriz[atual,vizinho];
+
+                    if novaDistancia < Distancia[vizinho] then
+                    begin
+                        Distancia[vizinho] := novaDistancia;
+                        Anterior[vizinho] := atual;
+                    end;
                 end;
             end;
         end;
     end;
 end;
+
+
+procedure MostrarAeroportos(
+    Aeroportos: aString
+);
+var
+    i: integer;
+begin
+    writeln;
+    writeln('===================================');
+    writeln('           AEROPORTOS');
+    writeln('===================================');
+
+    for i := 1 to 24 do
+    begin
+        writeln(i, ' - ', Aeroportos[i]);
+    end;
+
+    writeln('===================================');
+    writeln;
+end;
+
 
 procedure MostrarCaminho(
     Aeroportos: aString;
@@ -361,9 +411,13 @@ begin
         caminho[quantidade] := atual;
 
         if atual = origem then
-            atual := 0
+        begin
+            atual := 0;
+        end
         else
+        begin
             atual := Anterior[atual];
+        end;
     end;
 
     for i := quantidade downto 1 do
@@ -371,109 +425,228 @@ begin
         write(Aeroportos[caminho[i]]);
 
         if i > 1 then
+        begin
             write(' -> ');
+        end;
     end;
 
     writeln;
 end;
 
-procedure MostrarDistancias(
+
+procedure MostrarPesquisa(
     Aeroportos: aString;
-    Distancia: aInt
+    OrdemPesquisa: aInt
 );
 var
     i: integer;
 begin
+    writeln;
+    writeln('Como foi a pesquisa:');
+
     for i := 1 to 24 do
     begin
-        writeln(Aeroportos[i], ' = ', Distancia[i]);
+        if OrdemPesquisa[i] <> 0 then
+        begin
+            write(Aeroportos[OrdemPesquisa[i]]);
+
+            if (i < 24) and (OrdemPesquisa[i + 1] <> 0) then
+            begin
+                write(' -> ');
+            end;
+        end;
+    end;
+
+    writeln;
+end;
+
+
+procedure Verificar(
+    var O, D: integer;
+    Aero: aString
+);
+var
+    origem, destino: string;
+begin
+
+    while O = 0 do
+    begin
+        writeln;
+        writeln('Valor de origem invalido!');
+        write('Digite novamente o aeroporto de origem: ');
+        readln(origem);
+
+        O := encontrarAeoro(Aero, origem);
+    end;
+
+    while D = 0 do
+    begin
+        writeln;
+        writeln('Valor de destino invalido!');
+        write('Digite novamente o aeroporto de destino: ');
+        readln(destino);
+
+        D := encontrarAeoro(Aero, destino);
     end;
 end;
 
-procedure Verificar(var O , D: integer ; Aero : aString);
-var
-    origem , destino: string ;
-begin
-    while O = 0 do
-    begin
-        writeln('===================================');
-        writeln('Valor invalido !');
-        write('Digite novamente o valor do origem : ');
-        readln(origem);
-        writeln('===================================');
-        O := encontrarAeoro(Aero, origem);
-    end;
-    while D = 0 do
-    begin
-        writeln('===================================');
-        writeln('Valor invalido !');
-        write('Digite novamente o valor do destino : ');
-        readln(destino);
-        D := encontrarAeoro(Aero, destino);
-        writeln('===================================');
-    end;
-end;
 
 procedure MostrarResultado(
     Aeroportos: aString;
     Distancia: aInt;
     Anterior: aInt;
+    OrdemPesquisa: aInt;
     origem: integer;
     destino: integer
 );
 begin
+    writeln;
     writeln('===================================');
-    writeln('            RESULTADO');
+    writeln('             RESULTADO');
     writeln('===================================');
 
     writeln('Origem: ', Aeroportos[origem]);
     writeln('Destino: ', Aeroportos[destino]);
 
     writeln;
-    writeln('Caminho:');
-    MostrarCaminho(Aeroportos, Anterior, origem, destino);
+    writeln('Caminho encontrado:');
+    MostrarCaminho(
+        Aeroportos,
+        Anterior,
+        origem,
+        destino
+    );
 
     writeln;
     writeln('Distancia total: ', Distancia[destino]);
 
+    MostrarPesquisa(
+        Aeroportos,
+        OrdemPesquisa
+    );
+
     writeln('===================================');
+    writeln;
 end;
+
+
+procedure MostrarMenu;
+begin
+    writeln;
+    writeln('===================================');
+    writeln('       SISTEMA DE AEROPORTOS');
+    writeln('===================================');
+    writeln('1 - Mostrar aeroportos');
+    writeln('2 - Pesquisar rota');
+    writeln('0 - Sair');
+    writeln('===================================');
+    write('Digite uma opcao: ');
+end;
+
 
 var
     Distancia: aInt;
     Anterior: aInt;
+    OrdemPesquisa: aInt;
     Aeroportos: aString;
     Visitado: aBool;
     Matriz: aMatriz;
 
     codigoOrigem: string;
     codigoDestino: string;
-    op : string;
-    origem : integer;
-    destino : integer;
+    op: string;
+    origem: integer;
+    destino: integer;
+
 begin
+
     iniciaAeorporto(Aeroportos);
     iniciaMatriz(Matriz);
-    op :='s';
-    while (op = 'S')or(op = 's')  do
+
+    op := '';
+
+    while op <> '0' do
     begin
-        write('Digite o aeroporto de origem: ');
-        readln(codigoOrigem);
-        write('Digite o aeroporto do destino: ');
-        readln(codigoDestino);
-        
-        origem := encontrarAeoro(Aeroportos, codigoOrigem);
-        destino := encontrarAeoro(Aeroportos, codigoDestino);
-        
-        Verificar(origem , destino , Aeroportos);
 
-        iniciaDijkstra(origem,Distancia,Anterior,Visitado);
-
-        Dijkstra(Matriz,Distancia,Anterior,Visitado);
-
-        MostrarResultado(Aeroportos,Distancia,Anterior,origem,destino);
-
-        write('Deseja fazer outra consulta? (S/N): ');
+        MostrarMenu;
         readln(op);
+
+				clrscr;
+
+        if op = '1' then
+        begin
+            MostrarAeroportos(Aeroportos);
+        end
+        else
+        begin
+            if op = '2' then
+            begin
+
+                writeln;
+                writeln('===================================');
+                writeln('          PESQUISAR ROTA');
+                writeln('===================================');
+
+                write('Digite o aeroporto de origem: ');
+                readln(codigoOrigem);
+
+                write('Digite o aeroporto do destino: ');
+                readln(codigoDestino);
+
+                origem := encontrarAeoro(
+                    Aeroportos,
+                    codigoOrigem
+                );
+
+                destino := encontrarAeoro(
+                    Aeroportos,
+                    codigoDestino
+                );
+
+                Verificar(
+                    origem,
+                    destino,
+                    Aeroportos
+                );
+
+                iniciaDijkstra(
+                    origem,
+                    Distancia,
+                    Anterior,
+                    Visitado
+                );
+
+                Dijkstra(
+                    Matriz,
+                    Distancia,
+                    Anterior,
+                    Visitado,
+                    OrdemPesquisa
+                );
+
+                MostrarResultado(
+                    Aeroportos,
+                    Distancia,
+                    Anterior,
+                    OrdemPesquisa,
+                    origem,
+                    destino
+                );
+
+            end
+            else
+            begin
+                if op <> '0' then
+                begin
+                    writeln;
+                    writeln('Opcao invalida!');
+                end;
+            end;
+        end;
+
     end;
+
+    writeln;
+    writeln('Programa encerrado.');
+
 end.

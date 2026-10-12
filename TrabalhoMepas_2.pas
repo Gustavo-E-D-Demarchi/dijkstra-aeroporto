@@ -22,7 +22,7 @@ end;
 function encontrarAeoro(aeoro: aString;codigo: string): integer;
 var
     i: integer;
-begin
+begin  
     encontrarAeoro := 0;
 
     codigo := Maior(codigo);
@@ -398,9 +398,8 @@ begin
         if OrdemPesquisa[i] <> 0 then
         begin
             write(Aeroportos[OrdemPesquisa[i]]);
-            if (V[i]) then
-                if (i < 24) and (OrdemPesquisa[i + 1] <> 0) then
-                    write(' -> ');
+            if (i < 24) and (OrdemPesquisa[i + 1] <> 0) then
+                write(' -> ');
         end;
     end;
 
@@ -472,52 +471,47 @@ begin
     write('Digite uma opcao: ');
 end;
 
-procedure MostrarCaminhoPeso(Dist,Ant: aInt; origem, destino: integer; Matriz: aMatriz; Aero :aString; V : aBool);
+procedure MostrarCaminhoPeso(Dist, Ant: aInt; origem, destino: integer; Matriz: aMatriz; Aero: aString);
 var
-	caminho: aInt;
-	atual, qtd, i: integer;
+    caminho: aInt;
+    atual, qtd, i: integer;
 begin
-	if Dist[destino] >= 1000 then
-		writeln('Nao existe caminho.')
-	else
-	begin
-		qtd := 0;
-		atual := destino;
+    if Dist[destino] >= 9999999 then
+        writeln('Nao existe caminho.')
+    else
+    begin
+        qtd := 0;
+        atual := destino;
 
-		while atual <> 0 do
-		begin
-			qtd := qtd + 1;
-			caminho[qtd] := atual;
+        while atual <> 0 do
+        begin
+            qtd := qtd + 1;
+            caminho[qtd] := atual;
 
-			if (atual = origem) and (V[atual]) then
-			begin
-                V[atual] = false;
+            if atual = origem then
                 atual := 0
-            end
-			else
-				atual := Ant[atual];
-		end;
+            else
+                atual := Ant[atual];
+        end;
 
-		writeln('Caminho percorrido:');
-		writeln;
+        writeln('Caminho percorrido:');
+        writeln;
 
-		for i := qtd downto 1 do
-		begin
-			write(Aero[caminho[i]]);
+        for i := qtd downto 1 do
+        begin
+            write(Aero[caminho[i]]);
 
-			if i > 1 then
-			begin
-				write(' -- ');
-				write(Matriz[caminho[i]][caminho[i - 1]]);
-				write(' --> ');
-			end;
-		end;
+            if i > 1 then
+            begin
+                write(' -- ');
+                write(Matriz[caminho[i], caminho[i - 1]]);
+                write(' --> ');
+            end;
+        end;
 
-		writeln;
-		writeln('Distancia total: ', Dist[destino]);
-
-        MostrarCaminhoPeso(Dist,Ant,origem,destino,Matriz,Aero,V);
-	end;
+        writeln;
+        writeln('Distancia total: ', Dist[destino]);
+    end;
 end;
 
 var
@@ -549,7 +543,7 @@ begin
 
 		case op of 
 			1 : MostrarAeroportos(Aeroportos);
-			2 : begin 
+			2 : begin
 				MostrarAeroportos(Aeroportos);
 
                 writeln;
@@ -575,12 +569,7 @@ begin
 
                 MostrarResultado(Aeroportos,Distancia,Anterior,OrdemPesquisa,origem,destino,Visitado);
 
-                MostrarCaminhoPeso(Distancia,Anterior,origem,destino,Matriz,Aeroportos,Visitado);
-            end;
-
-            3 : begin
-                    writeln;
-                    writeln('Opcao invalida!'); 
+                MostrarCaminhoPeso(Distancia,Anterior,origem,destino,Matriz,Aeroportos);
             end;
         end;
     end;
